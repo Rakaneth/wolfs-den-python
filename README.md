@@ -7,3 +7,5 @@ Lots of code lifted from [here](https://github.com/TStand90/roguelike_tutorial_r
 # DONE #
 
 * Moving @
+* Screen scaffolding
+* Command interface

@@ -9,3 +9,4 @@ Lots of code lifted from [here](https://github.com/TStand90/roguelike_tutorial_r
 * Moving @
 * Screen scaffolding
 * Command interface
+* Main Screen UI

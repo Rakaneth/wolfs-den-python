@@ -25,6 +25,7 @@ def main():
 
     while not tcod.console_is_window_closed():
         root.clear()
+        Screen.cur_screen.render()
         root.put_char(px, py, ord('@'))
         tcod.console_flush()
         key = tcod.console_wait_for_keypress(tcod.KEY_PRESSED)

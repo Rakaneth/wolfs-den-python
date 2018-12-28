@@ -38,7 +38,7 @@ class MightEffect(Effect):
     def __init__(self, amt, owner, duration):
         Effect.__init__(
             self,
-            name="might",
+            name='might',
             owner=owner,
             stats=dict(str=amt),
             duration=duration)
@@ -51,7 +51,7 @@ class MightEffect(Effect):
 
 class PoisonEffect(Effect):
     def __init__(self, pwr, owner, duration):
-        Effect.__init__(self, name="poison", owner=owner, duration=duration)
+        Effect.__init__(self, name='poison', owner=owner, duration=duration)
         self.pwr = pwr
 
     def on_merge(self, eff):  #Poison stacks power and duration - very deadly!

@@ -1,5 +1,6 @@
 ﻿import tcod
 import math
+import parsers
 from utils import clamp
 from screen import Screen, MainScreen
 from entity import Entity
@@ -14,7 +15,7 @@ def main():
     font_flags = tcod.FONT_TYPE_GRAYSCALE | tcod.FONT_LAYOUT_ASCII_INROW
     tcod.console_set_custom_font(font_file, font_flags)
 
-    window_title = "Wolf's Den 2: Python Edition"
+    window_title = 'Wolf\'s Den 2: Python Edition'
     fullscreen = False
     root = tcod.console_init_root(SCREEN_W, SCREEN_H, window_title, fullscreen)
     tcod.sys_set_fps(LIMIT_FPS)
@@ -25,6 +26,11 @@ def main():
     player = Entity()
     player.stats = dict(str=10, spd=10)
     print(player)
+
+    creature_file = 'data/entity/creatures.dat'
+    parsers.parse_creatures(creature_file)
+    for _, temp in parsers.CREATURE_TEMPLATES.items():
+        print(temp)
 
     while not tcod.console_is_window_closed():
         root.clear()
@@ -38,5 +44,5 @@ def main():
             break
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

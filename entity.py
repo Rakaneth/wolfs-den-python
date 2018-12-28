@@ -24,6 +24,7 @@ class Entity:
         self.id = Entity.counter
         self.equipped = False
         self.eq_slot = None
+        self.tags = []
         Entity.counter += 1
 
     def move(self, x, y):
@@ -49,4 +50,5 @@ class Entity:
             statline = 'No statline.'
         return (f'{chr(self.glyph)} {self.name}\n'
                 f'{self.desc}\n'
-                f'{statline}\n')
+                f'{statline}\n'
+                f'Tags: {self.tags}')

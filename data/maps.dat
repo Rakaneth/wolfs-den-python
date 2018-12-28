@@ -1,0 +1,66 @@
+map "salaban" {
+    name="The Kingdom of Salaban"
+    width=200
+    height=200
+    light
+    genType="world"
+    connections "in" {
+        id="mines"
+        twoWay
+    }
+}
+
+map "mines" {
+    name="Mines"
+    width=85
+    height=85
+    light
+    genType="uniform"
+    connections "down" {
+        id="mineLower"
+        twoWay
+    }
+}
+
+map "mineLower" {
+    name="Mines - Lower"
+    width=85
+    height=85
+    light
+    genType="uniform"
+    connections "down" {
+        id="caves"
+        twoWay
+    }
+}
+
+map "caves" {
+    name="Caves"
+    width=100
+    height=100
+    genType="caves"
+    connections "down" {
+        id="cavesLower"
+        twoWay
+    }
+}
+
+map "cavesLower" {
+    name="Caves - Lower"
+    width=100
+    height=100
+    genType="caves"
+    connections "down" {
+        id="crypt"
+        twoWay
+    }
+}
+
+map "crypt" {
+    name="Crypt"
+    width=100
+    height=100
+    genType="uniform"
+    light
+}
+

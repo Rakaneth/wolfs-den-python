@@ -34,10 +34,10 @@ class Screen:
         raise NotImplementedError
 
     def exit(self):
-        print(f"Exited {self.name} screen.")
+        print(f'Exited {self.name} screen.')
 
     def enter(self):
-        print(f"Entered {self.name} screen.")
+        print(f'Entered {self.name} screen.')
 
     def blit(self, con, x, y):
         tcod.console_blit(con, 0, 0, con.width, con.height, self.root, x, y)
@@ -71,27 +71,27 @@ class MainScreen(Screen):
 
     def render_map(self):
         self.map_con.clear()
-        #Screen.border(self.map_con, "Map")
+        #Screen.border(self.map_con, 'Map')
         self.blit(self.map_con, 0, 0)
 
     def render_msg(self):
         self.msg_con.clear()
-        Screen.border(self.msg_con, "Messages")
+        Screen.border(self.msg_con, 'Messages')
         self.blit(self.msg_con, 0, 30)
 
     def render_skill(self):
         self.skill_con.clear()
-        Screen.border(self.skill_con, "Skills")
+        Screen.border(self.skill_con, 'Skills')
         self.blit(self.skill_con, 40, 30)
 
     def render_info(self):
         self.info_con.clear()
-        Screen.border(self.info_con, "Info")
+        Screen.border(self.info_con, 'Info')
         self.blit(self.info_con, 60, 30)
 
     def render_stat(self):
         self.stat_con.clear()
-        Screen.border(self.stat_con, "Stats")
+        Screen.border(self.stat_con, 'Stats')
         self.blit(self.stat_con, 60, 0)
 
     def handle_keys(self, key: tcod.Key) -> commands.Command:

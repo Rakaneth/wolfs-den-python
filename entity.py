@@ -22,6 +22,8 @@ class Entity:
         self.ai = None
         self.effect_list = []
         self.id = Entity.counter
+        self.equipped = False
+        self.eq_slot = None
         Entity.counter += 1
 
     def move(self, x, y):

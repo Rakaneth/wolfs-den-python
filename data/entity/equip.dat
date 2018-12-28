@@ -112,6 +112,7 @@ equip "staff" {
 
 equip "rapier" {
 	name="rapier"
+    equipType="rapier"
 	desc="A thin rapier made from <material>."
 	slot="weapon"
 	glyph=0x19

@@ -28,8 +28,29 @@ def main():
     print(player)
 
     creature_file = 'data/entity/creatures.dat'
+    equip_file = 'data/entity/equip.dat'
+    item_file = 'data/entity/items.dat'
+    mat_file = 'data/entity/materials.dat'
+    map_file = 'data/maps.dat'
     parsers.parse_creatures(creature_file)
-    for _, temp in parsers.CREATURE_TEMPLATES.items():
+    parsers.parse_materials(mat_file)
+    parsers.parse_equip(equip_file)
+    parsers.parse_items(item_file)
+    parsers.parse_maps(map_file)
+
+    #for _, temp in parsers.CREATURE_TEMPLATES.items():
+    #    print(temp)
+
+    #for _, temp in parsers.MATERIAL_TEMPLATES.items():
+    #    print(temp)
+
+    #for _, temp in parsers.EQ_TEMPLATES.items():
+    #    print(temp)
+
+    #for _, temp in parsers.ITEM_TEMPLATES.items():
+    #    print(temp)
+
+    for _, temp in parsers.MAP_TEMPLATES.items():
         print(temp)
 
     while not tcod.console_is_window_closed():

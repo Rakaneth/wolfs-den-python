@@ -11,6 +11,7 @@ creature "wolf" {
 		vision=10
 	}
 	tags=["animal", "wolf"]
+    frequency=10
 }
 
 creature "zombie" {
@@ -25,4 +26,5 @@ creature "zombie" {
 		vision=4
 	}
 	tags=["undead"]
+    frequency=5
 }

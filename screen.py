@@ -1,4 +1,5 @@
 import tcod
+import commands
 from utils import DIRS
 
 
@@ -29,7 +30,7 @@ class Screen:
     def render(self):
         raise NotImplementedError
 
-    def handle_keys(self, key):
+    def handle_keys(self, key: tcod.Key) -> commands.Command:
         raise NotImplementedError
 
     def exit(self):
@@ -93,7 +94,7 @@ class MainScreen(Screen):
         Screen.border(self.stat_con, "Stats")
         self.blit(self.stat_con, 60, 0)
 
-    def handle_keys(self, key):
+    def handle_keys(self, key: tcod.Key) -> commands.Command:
         moves = {
             tcod.KEY_KP8: DIRS['N'],
             tcod.KEY_KP9: DIRS['NE'],
@@ -108,8 +109,8 @@ class MainScreen(Screen):
 
         dirMoves = moves.get(key.vk)
         if dirMoves:
-            return {'type': 'move-by', 'objID': 'player', 'by': dirMoves}
+            return commands.MoveByCommand(*dirMoves)
         elif key.vk == tcod.KEY_ESCAPE:
-            return {'type': 'exit'}
+            return commands.ExitCommand()
         else:
-            return {'type': 'wait', 'objID': 'player'}
+            return commands.WaitCommand()

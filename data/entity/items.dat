@@ -1,0 +1,20 @@
+item "ration" {
+	name="ration"
+	desc="Long-lasting, bland-tasting traveling rations."
+	glyph=','
+	col="31,24,15"
+	type="food"
+	frequency=5
+	amt=0.2
+	tags=["food"]
+}
+
+item "bandage" {
+	name="bandages"
+	desc="Strips of cloth anointed with a healing salve."
+	glyph='!'
+	type="healing"
+	frequency = 3
+	amt=0.2
+	tags=["healing"]
+}

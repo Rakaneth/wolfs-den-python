@@ -1,0 +1,121 @@
+material "oak" {
+	name="oak"
+	hardness=10
+	stats "staff" {
+		pwr=5
+		wil=5
+	}
+	stats "hammer" {
+		dmg=1
+	}
+	frequency=3
+  col="158,134,100"
+}
+
+material "iron" {
+	name="iron"
+	col="63,63,63"
+	hardness=20
+	stats "sword" {
+		dmg=2
+	}
+	stats "axe" {
+		dmg=2
+	}
+	stats "hammer" {
+		atp=-5
+		dmg=3
+	}
+	stats "armor" {
+		atp=-5
+	}
+	frequency=5
+}
+
+material "leather" {
+	name="leather"
+	col="94,75,47"
+	hardness=5
+	stats "armor" {
+		res=5
+	}
+	frequency=5
+}
+
+material "steel" {
+	name="steel"
+	col="159,159,159"
+	hardness=30
+	stats "sword" {
+		dmg=3
+		atp=5
+	}
+	stats "axe" {
+		dmg=4
+	}
+	stats "hammer" {
+		dmg=5
+	}
+	stats "armor" {
+		atp=-10
+	}
+	stats "rapier" {
+		atp=10
+		dmg=2
+	}
+	frequency=3
+}
+
+material "bone" {
+	name="bone"
+	col="223,223,223"
+	hardness=5
+	stats "sword" {
+		atp=5
+		dmg=-1
+		pwr=5
+	}
+	stats "armor" {
+		pwr=5
+		res=10
+	}
+	frequency=2
+}
+
+material "blackiron" {
+	name="blackiron"
+	col="95,0,191"
+	hardness=40
+	stats "sword" {
+		atp=5
+		dmg=3
+		res=5
+		pwr=-10
+		wil=-10
+	}
+	stats "axe" {
+		dmg=4
+		res=5
+		pwr=-10
+		wil=-10
+	}
+	stats "rapier" {
+		atp=10
+		dmg=2
+		res=5
+		pwr=-10
+		wil=-10
+	}
+	stats "hammer" {
+		dmg=5
+		res=5
+		pwr=-10
+		wil=-10
+	}
+	stats "armor" {
+		res=10
+		pwr=-20
+		wil=-20
+	}
+	frequency=1
+}

@@ -1,0 +1,162 @@
+equip "whiteMark" {
+	name="Mark of Ilma"
+	desc="A holy symbol of the dragon Il\'ma\'to\'ee\'rey."
+	slot="trinket"
+	glyph=0x3D
+	stats {
+		dmg=2
+	}
+	tags=["holy", "dragon"]
+}
+
+equip "blackMark" {
+	name="Mark of Barma"
+	desc="A holy symbol of the dragon Yalakhbarma."
+	slot="trinket"
+	glyph=0x3D
+	stats {
+		tou=5
+		res=5
+	}
+	tags=["holy", "dragon"]
+	col="63,63,63"
+}
+
+equip "redMark" {
+	name="Mark of Mekira"
+	desc="A holy symbol of the dragon Xilomekira."
+	slot="trinket"
+	glyph=0x3D
+	stats {
+		atp=5
+		pwr=5
+	}
+	tags=["holy", "dragon"]
+	col="191,74,0"
+}
+
+equip "greenMark" {
+	name="Mark of Sansa"
+	desc="A holy symbol of the dragon Sansapradava."
+	slot="trinket"
+	glyph=0x3D
+	stats {
+		atp=5
+		pwr=5
+	}
+	tags=["holy", "dragon"]
+	col="0,191,0"
+}
+
+equip "blueMark" {
+	name="Mark of Atara"
+	desc="A holy symbol of the dragon Ataramakaris."
+	slot="trinket"
+	glyph=0x3D
+	stats {
+		wil=5
+		pwr=5
+	}
+	tags=["holy", "dragon"]
+	col="0,127,255"
+}
+
+equip "axe" {
+	name="axe"
+	desc="A large axe made from <material>."
+	slot="weapon"
+	glyph=0x2F
+	material
+	stats {
+		atp=-5
+		dmg=10
+	}
+	damageType="slash"
+	equipType="axe"
+	tags=["weapon"]
+	frequency=5
+}
+
+equip "sword" {
+	name="sword"
+	desc="A shortsword made from <material>."
+	slot="weapon"
+	glyph=0x7C
+	material
+	stats {
+		atp=5
+		dmg=6
+	}
+	damageType="slash"
+	equipType="sword"
+	tags=["weapon"]
+	frequency=5
+}
+
+equip "staff" {
+	name="staff"
+	desc="A long staff made from <material>."
+	slot="weapon"
+	glyph='_'
+	material
+	stats {
+		pwr=5
+		wil=5
+		dmg=2
+	}
+	damageType="magic"
+	equipType="staff"
+	tags=["weapon"]
+	frequency=2
+}
+
+equip "rapier" {
+	name="rapier"
+	desc="A thin rapier made from <material>."
+	slot="weapon"
+	glyph=0x19
+	material
+	stats {
+		atp=10
+		dmg=4
+	}
+	damageType="pierce"
+	tags=["weapon"]
+	frequency=3
+}
+
+equip "hands" {
+	name="bare hands"
+	desc="Bare hands."
+	slot="weapon"
+	stats {
+		dmg=1
+	}
+	damageType="blunt"
+	equipType="natural"
+	tags=["weapon"]
+}
+
+equip "claws" {
+	name="claws"
+	desc="Sharp claws."
+	slot="weapon"
+	stats {
+		dmg=2
+	}
+	damageType="slash"
+	equipType="natural"
+	tags=["weapon"]
+}
+
+equip "fangs" {
+	name="fangs"
+	desc="Long fangs."
+	slot="weapon"
+	stats {
+		dmg=2
+	}
+	damageType="pierce"
+	equipType="natural"
+	tags=["weapon"]
+}

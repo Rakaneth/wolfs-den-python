@@ -43,7 +43,7 @@ class Entity:
     def __str__(self):
         statline = ''
         if len(self.stats) > 0:
-            for stat, val in self.stats:
+            for stat, val in self.stats.items():
                 statline += f'{stat}: {val} '
         else:
             statline = 'No statline.'

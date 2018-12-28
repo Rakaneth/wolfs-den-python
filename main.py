@@ -2,14 +2,13 @@
 import math
 from utils import clamp
 from screen import Screen, MainScreen
+from entity import Entity
 
 
 def main():
     SCREEN_W = 100
     SCREEN_H = 40
     LIMIT_FPS = 20
-    px = 0
-    py = 0
 
     font_file = 'Cheepicus_14x14.png'
     font_flags = tcod.FONT_TYPE_GRAYSCALE | tcod.FONT_LAYOUT_ASCII_INROW
@@ -23,26 +22,20 @@ def main():
     Screen.register(MainScreen(root))
     Screen.setScreen('main')
 
+    player = Entity()
+    player.stats = dict(str=10, spd=10)
+    print(player)
+
     while not tcod.console_is_window_closed():
         root.clear()
         Screen.cur_screen.render()
-        root.put_char(px, py, ord('@'))
+        root.put_char(player.x, player.y, player.glyph)
         tcod.console_flush()
         key = tcod.console_wait_for_keypress(tcod.KEY_PRESSED)
         cmd = Screen.cur_screen.handle_keys(key)
-        cmdType = cmd['type']
-        if cmdType == 'move-by':
-            dx, dy = cmd['by']
-            px = clamp(px + dx, 0, SCREEN_W - 1)
-            py = clamp(py + dy, 0, SCREEN_H - 1)
-        elif cmdType == 'wait':
-            pass
-        elif cmdType == 'exit':
+        val = cmd.execute(player)
+        if val == -1:
             break
-        elif key.vk != tcod.KEY_NONE:
-            print(f"Unknown key pressed: {key.text}")
-        else:
-            pass
 
 
 if __name__ == "__main__":

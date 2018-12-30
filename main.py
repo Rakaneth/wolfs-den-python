@@ -1,9 +1,12 @@
 ﻿import tcod
 import math
 import parsers
+import factory
+
 from utils import clamp
 from screen import Screen, MainScreen
 from entity import Entity
+from world import World
 
 
 def main():
@@ -38,20 +41,8 @@ def main():
     parsers.parse_items(item_file)
     parsers.parse_maps(map_file)
 
-    #for _, temp in parsers.CREATURE_TEMPLATES.items():
-    #    print(temp)
-
-    #for _, temp in parsers.MATERIAL_TEMPLATES.items():
-    #    print(temp)
-
-    #for _, temp in parsers.EQ_TEMPLATES.items():
-    #    print(temp)
-
-    #for _, temp in parsers.ITEM_TEMPLATES.items():
-    #    print(temp)
-
-    for _, temp in parsers.MAP_TEMPLATES.items():
-        print(temp)
+    ration = factory.item_from_template('ration')
+    print(ration)
 
     while not tcod.console_is_window_closed():
         root.clear()

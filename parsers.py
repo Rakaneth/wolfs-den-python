@@ -30,7 +30,8 @@ class TempBase:
 class CreatureTemplate(TempBase):
     def __init__(self):
         TempBase.__init__(self)
-        self.stats = dict(str=10, stam=10, spd=10, skl=10, sag=10, smt=10)
+        self.stats = dict(
+            str=10, stam=10, spd=10, skl=10, sag=10, smt=10, vision=6)
         self.unarmed = 'hands'
         self.start_items = []
 
@@ -112,7 +113,7 @@ class CreatureParser(BaseParser):
         return True
 
     def new_property(self, name, typ, value):
-        stat_names = ['str', 'stam', 'spd', 'skl', 'sag', 'smt']
+        stat_names = ['str', 'stam', 'spd', 'skl', 'sag', 'smt', 'vision']
         if name == 'name':
             self.temp.name = value
         elif name == 'type':
@@ -204,7 +205,9 @@ class EquipParser(BaseParser):
         return True
 
     def new_property(self, name, typ, value):
-        stat_names = ['atp', 'dfp', 'dmg', 'tou', 'res', 'wil', 'pwr']
+        stat_names = [
+            'atp', 'dfp', 'dmg', 'tou', 'res', 'wil', 'pwr', 'vision'
+        ]
         if name == 'name':
             self.temp.name = value
         elif name == 'desc':

@@ -42,5 +42,11 @@ class World:
     def set_cur_map(self, map_id):
         self.cur_map_id = map_id
 
+    def make_player(self, entity):
+        self.add_entity(entity)
+        entity.is_player = True
+        self.player = entity
+        entity.get_map.update_fov(entity)
+
 
 WORLD = World(0xDEADBEEF)

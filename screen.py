@@ -48,6 +48,17 @@ class Screen:
         tcod.console_blit(con, x, y, w, h, self.root, dx, dy)
 
 
+def new_game():
+    mines = factory.caves("mines", "Mines", 85, 85, tcod.dark_sepia,
+                          tcod.darker_sepia, False)
+    WORLD.add_map(mines)
+    WORLD.set_cur_map("mines")
+    player = factory.creature_from_template("wolf", 'mines')
+    axe = factory.equip_from_template('axe', 'iron', 'mines')
+    WORLD.make_player(player)
+    WORLD.add_entity(axe)
+
+
 class MainScreen(Screen):
     MAP_VIEW_W = 60
     MAP_VIEW_H = 30
@@ -75,15 +86,8 @@ class MainScreen(Screen):
     def enter(self):
         Screen.enter(self)
         if self.game_init:
-            WORLD.add_map(
-                factory.caves("mines", "Mines", 85, 85, tcod.dark_sepia,
-                              tcod.darker_sepia))
-            WORLD.set_cur_map("mines")
-            player = factory.creature_from_template("wolf")
-            player.map_id = "mines"
-            player.x, player.y = WORLD.cur_map.random_floor()
-            WORLD.player = player
-            WORLD.add_entity(player)
+            new_game()
+            self.game_init = False
 
     def render(self):
         self.render_map()
@@ -108,17 +112,25 @@ class MainScreen(Screen):
         for wx, wy in [(x, y) for (x, y) in m if m.is_dirty(x, y)]:
             t = m.get_tile(wx, wy)
             map_color = m.floor_color if t.walk else m.wall_color
-            if t.glyph:
-                fg = t.fg or map_color
-                bg = t.bg or map_color
+            visible = m.light or WORLD.player.can_see(wx, wy)
+            explored = m.is_explored(wx, wy)
+            if t.glyph and (visible or explored):
+                if visible:
+                    fg = t.fg or map_color
+                    bg = t.bg or map_color
+                elif explored:
+                    fg = t.walk and tcod.dark_blue or tcod.darker_blue
+                    bg = fg
                 tcod.console_put_char_ex(self.map_con, wx, wy, t.glyph, fg, bg)
-            things = WORLD.things_at(wx, wy)
-            sorted(things, key=lambda t: t.layer)
-            for thing in things:
-                tt = m.get_tile(thing.x, thing.y)
-                tbg = tt.bg or m.floor_color
-                tcod.console_put_char_ex(self.map_con, thing.x, thing.y,
-                                         thing.glyph, thing.color, tbg)
+            if visible:
+                things = WORLD.things_at(wx, wy)
+                sorted(things, key=lambda t: t.layer)
+                for thing in things:
+                    tt = m.get_tile(thing.x, thing.y)
+                    tbg = tt.bg or m.floor_color
+
+                    tcod.console_put_char_ex(self.map_con, thing.x, thing.y,
+                                             thing.glyph, thing.color, tbg)
             m.clean(wx, wy)
 
         self.center_on_point(self.map_con, cx, cy, MainScreen.MAP_VIEW_W,

@@ -183,3 +183,16 @@ class GameMap(tcod.map.Map):
 
     def is_explored(self, x, y):
         return self.explored[y, x]
+
+    def update_fov(self, entity):
+        if entity.is_player:
+            for x, y in [(xs, ys) for (xs, ys) in self if self.fov[ys, xs]]:
+                self.set_dirty(x, y)
+        vis = entity.get_stat('vision')
+        self.compute_fov(entity.x, entity.y, vis)
+        entity.fov = self.fov
+        if entity.is_player:
+            for x2, y2 in [(xxs, yys) for (xxs, yys) in self
+                           if self.fov[yys, xxs]]:
+                self.explore(x2, y2)
+                self.set_dirty(x2, y2)

@@ -18,6 +18,7 @@ class MoveByCommand(Command):
         entity.x += self.dx
         entity.y += self.dy
         m.set_dirty(entity.x, entity.y)
+        entity.get_map.update_fov(entity)
         return max(100 - entity.get_stat('spd'), 1)
 
 

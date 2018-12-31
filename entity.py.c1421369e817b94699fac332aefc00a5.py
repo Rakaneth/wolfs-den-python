@@ -144,6 +144,7 @@ class Creature(Entity):
         return self.fov[y, x]
 
 
+
 class Equipment(Entity):
     def __init__(self,
                  name='No name',

@@ -1,4 +1,5 @@
 from entity import Entity
+from world import WORLD
 
 
 class Command:
@@ -12,8 +13,11 @@ class MoveByCommand(Command):
         self.dy = dy
 
     def execute(self, entity: Entity) -> int:
+        m = entity.get_map
+        m.set_dirty(entity.x, entity.y)
         entity.x += self.dx
         entity.y += self.dy
+        m.set_dirty(entity.x, entity.y)
         return max(100 - entity.get_stat('spd'), 1)
 
 

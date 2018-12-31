@@ -1,5 +1,6 @@
 import parsers
 from entity import Creature, Item, Equipment
+from gamemap import GameMap
 
 
 def creature_from_template(buildID):
@@ -61,3 +62,12 @@ def item_from_template(buildID):
         typ=temp.type,
         tags=temp.tags)
     return mould
+
+
+def caves(m_id, name, width, height, wall_color, floor_color, light=True):
+    base_map = GameMap(width, height, m_id, name, wall_color, floor_color,
+                       light)
+    base_map.randomize(0.5)
+    base_map.cave_iteration(5)
+    base_map.wall_wrap()
+    return base_map

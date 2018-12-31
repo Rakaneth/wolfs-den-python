@@ -1,6 +1,8 @@
 import tcod
 import commands
-from utils import DIRS
+import factory
+from utils import DIRS, clamp
+from world import WORLD
 
 
 class Screen:
@@ -42,12 +44,19 @@ class Screen:
     def blit(self, con, x, y):
         tcod.console_blit(con, 0, 0, con.width, con.height, self.root, x, y)
 
+    def center_on_point(self, con, x, y, w, h, dx, dy):
+        tcod.console_blit(con, x, y, w, h, self.root, dx, dy)
+
 
 class MainScreen(Screen):
+    MAP_VIEW_W = 60
+    MAP_VIEW_H = 30
+
     def __init__(self, root):
         Screen.__init__(self, 'main', root)
-        MAP_W = 60
-        MAP_H = 30
+        MAP_W = 100
+        MAP_H = 100
+
         MSG_W = 40
         MSG_H = 10
         SKILL_W = 20
@@ -61,6 +70,20 @@ class MainScreen(Screen):
         self.skill_con = tcod.console_new(SKILL_W, SKILL_H)
         self.info_con = tcod.console_new(INFO_W, INFO_H)
         self.stat_con = tcod.console_new(STAT_W, STAT_H)
+        self.game_init = True
+
+    def enter(self):
+        Screen.enter(self)
+        if self.game_init:
+            WORLD.add_map(
+                factory.caves("mines", "Mines", 85, 85, tcod.dark_sepia,
+                              tcod.darker_sepia))
+            WORLD.set_cur_map("mines")
+            player = factory.creature_from_template("wolf")
+            player.map_id = "mines"
+            player.x, player.y = WORLD.cur_map.random_floor()
+            WORLD.player = player
+            WORLD.add_entity(player)
 
     def render(self):
         self.render_map()
@@ -69,10 +92,37 @@ class MainScreen(Screen):
         self.render_info()
         self.render_stat()
 
+    def cam(self, entity):
+        m = WORLD.cur_map
+        mw = m.width
+        mh = m.height
+        sw = MainScreen.MAP_VIEW_W
+        sh = MainScreen.MAP_VIEW_H
+        left = clamp(entity.x - sw // 2, 0, max(0, mw - sw))
+        top = clamp(entity.y - sh // 2, 0, max(0, mh - sh))
+        return (left, top)
+
     def render_map(self):
-        self.map_con.clear()
-        #Screen.border(self.map_con, 'Map')
-        self.blit(self.map_con, 0, 0)
+        cx, cy = self.cam(WORLD.player)
+        m = WORLD.cur_map
+        for wx, wy in [(x, y) for (x, y) in m if m.is_dirty(x, y)]:
+            t = m.get_tile(wx, wy)
+            map_color = m.floor_color if t.walk else m.wall_color
+            if t.glyph:
+                fg = t.fg or map_color
+                bg = t.bg or map_color
+                tcod.console_put_char_ex(self.map_con, wx, wy, t.glyph, fg, bg)
+            things = WORLD.things_at(wx, wy)
+            sorted(things, key=lambda t: t.layer)
+            for thing in things:
+                tt = m.get_tile(thing.x, thing.y)
+                tbg = tt.bg or m.floor_color
+                tcod.console_put_char_ex(self.map_con, thing.x, thing.y,
+                                         thing.glyph, thing.color, tbg)
+            m.clean(wx, wy)
+
+        self.center_on_point(self.map_con, cx, cy, MainScreen.MAP_VIEW_W,
+                             MainScreen.MAP_VIEW_H, 0, 0)
 
     def render_msg(self):
         self.msg_con.clear()

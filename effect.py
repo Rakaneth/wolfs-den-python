@@ -11,10 +11,10 @@ class Effect:
         pass
 
     def on_apply(self):
-        print(f'Effect {self.name} applied.')
+        print(f'Effect {self.name} applied to {self.owner.name}')
 
     def on_remove(self):
-        print(f'Effect {self.name} removed.')
+        print(f'Effect {self.name} removed from {self.owner.name}.')
 
     def get_stat(self, stat):
         return self.stats.get(stat, 0)
@@ -32,21 +32,6 @@ class Effect:
         return (
             f'{self.name}\n'
             f'Duration: {"infinite" if self.duration < 0 else self.duration}')
-
-
-class MightEffect(Effect):
-    def __init__(self, amt, owner, duration):
-        Effect.__init__(
-            self,
-            name='might',
-            owner=owner,
-            stats=dict(str=amt),
-            duration=duration)
-
-    def on_merge(self, eff):  #Only the mightiest might applies
-        if eff.get_stat('str') > self.get_stat('str'):
-            self.set_stat('str', eff.get_stat('str'))
-            self.duration = eff.duration
 
 
 class PoisonEffect(Effect):

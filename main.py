@@ -6,7 +6,7 @@ import factory
 from utils import clamp
 from screen import Screen, MainScreen
 from entity import Entity
-from world import World
+from world import WORLD
 
 
 def main():
@@ -23,13 +23,6 @@ def main():
     root = tcod.console_init_root(SCREEN_W, SCREEN_H, window_title, fullscreen)
     tcod.sys_set_fps(LIMIT_FPS)
 
-    Screen.register(MainScreen(root))
-    Screen.setScreen('main')
-
-    player = Entity()
-    player.stats = dict(str=10, spd=10)
-    print(player)
-
     creature_file = 'data/entity/creatures.dat'
     equip_file = 'data/entity/equip.dat'
     item_file = 'data/entity/items.dat'
@@ -41,17 +34,16 @@ def main():
     parsers.parse_items(item_file)
     parsers.parse_maps(map_file)
 
-    ration = factory.item_from_template('ration')
-    print(ration)
+    Screen.register(MainScreen(root))
+    Screen.setScreen('main')
 
     while not tcod.console_is_window_closed():
         root.clear()
         Screen.cur_screen.render()
-        root.put_char(player.x, player.y, player.glyph)
         tcod.console_flush()
         key = tcod.console_wait_for_keypress(tcod.KEY_PRESSED)
         cmd = Screen.cur_screen.handle_keys(key)
-        val = cmd.execute(player)
+        val = cmd.execute(WORLD.player)
         if val == -1:
             break
 

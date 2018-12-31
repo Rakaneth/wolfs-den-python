@@ -1,5 +1,6 @@
 import tcod
 import parsers
+from world import WORLD
 
 
 class Entity:
@@ -58,6 +59,10 @@ class Entity:
     def pwr(self):
         return self.get_stat('pwr') + self.get_stat('smt')
 
+    @property
+    def get_map(self):
+        return WORLD.maps[self.map_id]
+
     def move(self, x, y):
         self.x, self.y = x, y
 
@@ -102,6 +107,7 @@ class Creature(Entity):
         self.effect_list = []
         self.edr_mult = 2.0
         self.stats = stats
+        self.alive = True
 
     def get_stat(self, stat):
         base = self.stats.get(stat, 0)
@@ -124,6 +130,12 @@ class Creature(Entity):
 
     def change_edr(self, val):
         self.set_stat('edr', min(self.get_stat('edr') + val, self.max_edr))
+
+    def heal(self):
+        self.set_stat('vit', self.max_vit)
+
+    def restore(self):
+        self.set_stat('edr', self.max_edr)
 
 
 class Equipment(Entity):

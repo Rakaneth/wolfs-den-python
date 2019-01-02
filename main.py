@@ -12,7 +12,6 @@ from world import WORLD
 def main():
     SCREEN_W = 100
     SCREEN_H = 40
-    LIMIT_FPS = 20
 
     font_file = 'Cheepicus_14x14.png'
     font_flags = tcod.FONT_TYPE_GRAYSCALE | tcod.FONT_LAYOUT_ASCII_INROW
@@ -21,7 +20,6 @@ def main():
     window_title = 'Wolf\'s Den 2: Python Edition'
     fullscreen = False
     root = tcod.console_init_root(SCREEN_W, SCREEN_H, window_title, fullscreen)
-    tcod.sys_set_fps(LIMIT_FPS)
 
     creature_file = 'data/entity/creatures.dat'
     equip_file = 'data/entity/equip.dat'

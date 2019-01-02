@@ -160,8 +160,10 @@ class GameMap(tcod.map.Map):
                 self.set_tile(fx, fy, 'floor')
 
     def wall_wrap(self):
-        toWrap = [(x, y) for (x, y) in self if x == 0 or x == self.width - 1
-                  if y == 0 or y == self.height - 1]
+        toWrap = [
+            (x, y) for (x, y) in self
+            if x == 0 or x == self.width - 1 or y == 0 or y == self.height - 1
+        ]
         for wx, wy in toWrap:
             self.set_tile(wx, wy, 'wall')
 

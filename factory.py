@@ -1,6 +1,8 @@
 import parsers
+import tcod
 from entity import Creature, Item, Equipment
 from gamemap import GameMap
+from random import choice, shuffle
 
 
 def seed(entity, map_id, x=None, y=None):
@@ -87,6 +89,28 @@ def caves(m_id, name, width, height, wall_color, floor_color, light=True):
     base_map = GameMap(width, height, m_id, name, wall_color, floor_color,
                        light)
     base_map.randomize(0.5)
-    base_map.cave_iteration(5)
+    base_map.cave_iteration(4)
     base_map.wall_wrap()
+    base_map.set_regions()
+    base_map.close_small_regions(20)
+    path = tcod.path.AStar(base_map.carve_cost, 0)
+    regions_copy = list(base_map.regions.values())
+    shuffle(regions_copy)
+    reg_from = regions_copy.pop()
+    while regions_copy:
+        reg_to = regions_copy.pop()
+        ax, ay = choice(reg_from)
+        bx, by = choice(reg_to)
+        p = path.get_path(ax, ay, bx, by)
+        if p:
+            for x, y in p:
+                if base_map.can_walk(x, y) and not (x, y) in reg_from:
+                    break
+                else:
+                    base_map.set_tile(x, y, 'floor')
+            reg_from = reg_to
+        else:
+            print(f'Error connecting regions in {base_map.name}: no path')
+            exit(1)
+
     return base_map

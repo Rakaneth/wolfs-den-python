@@ -3,6 +3,7 @@ import tcod
 from numpy import full
 from utils import between, clamp
 from itertools import product
+from queue import Queue
 
 
 class Tile:
@@ -63,19 +64,26 @@ class GameMap(tcod.map.Map):
         self.explored = full((height, width), False, dtype=bool)
         self.tiles = full((height, width), 0, dtype=int)
         self.dirty = full((height, width), True, dtype=bool)
+        self.carve_cost = full((height, width), 0, dtype=int)
+        self.move_cost = full((height, width), 0, dtype=int)
         self.name = name
         self.id = id
         self.floor_color = floor_color
         self.wall_color = wall_color
         self.light = light
         self.connections = {}
-        self.floors = []
+        self.floors = set()
+        self._flood_table = {}
+        self.regions = {}
 
     def __iter__(self):
         return product(range(self.width), range(self.height))
 
     def in_bounds(self, x, y):
         return between(x, 0, self.width - 1) and between(y, 0, self.height - 1)
+
+    def on_edge(self, x, y):
+        return x == 0 or x == self.width - 1 or y == 0 or y == self.height - 1
 
     def get_tile(self, x, y):
         if self.in_bounds(x, y):
@@ -92,10 +100,17 @@ class GameMap(tcod.map.Map):
         can_walk = tile_data.walk > 0
         self.walkable[y, x] = can_walk
         pt = (x, y)
+        self.move_cost[y, x] = tile_data.walk
         if can_walk:
-            self.floors.append(pt)
+            self.carve_cost[y, x] = 10
+            self.floors.add(pt)
         elif pt in self.floors:
+            if tile_name == 'wall' and not self.on_edge(x, y):
+                self.carve_cost[y, x] = 1
             self.floors.remove(pt)
+
+        if self.on_edge(x, y):
+            self.carve_cost[y, x] = 0
 
     def neighbors(self, x, y, skip_walls=True, four_way=False):
         x_min = max(0, x - 1)
@@ -105,7 +120,7 @@ class GameMap(tcod.map.Map):
 
         return [(xs, ys) for xs in range(x_min, x_max + 1)
                 for ys in range(y_min, y_max + 1)
-                if not (skip_walls and not self.walkable[y, x])
+                if not (skip_walls and not self.walkable[ys, xs])
                 if not (four_way and (xs != x and ys != y))
                 if (xs, ys) != (x, y)]
 
@@ -127,7 +142,7 @@ class GameMap(tcod.map.Map):
                 )
                 return None
         else:
-            return random.choice(self.floors)
+            return random.choice(list(self.floors))
 
     def connect(self, dest_map_id, from_x, from_y, to_x, to_y):
         self.connections[(from_x, from_y)] = MapConnection(
@@ -160,10 +175,7 @@ class GameMap(tcod.map.Map):
                 self.set_tile(fx, fy, 'floor')
 
     def wall_wrap(self):
-        toWrap = [
-            (x, y) for (x, y) in self
-            if x == 0 or x == self.width - 1 or y == 0 or y == self.height - 1
-        ]
+        toWrap = [(x, y) for (x, y) in self if self.on_edge(x, y)]
         for wx, wy in toWrap:
             self.set_tile(wx, wy, 'wall')
 
@@ -198,3 +210,47 @@ class GameMap(tcod.map.Map):
                            if self.fov[yys, xxs]]:
                 self.explore(x2, y2)
                 self.set_dirty(x2, y2)
+
+    def flood(self, x, y, region_id):
+        q = Queue()
+        q.put((x, y))
+        result = [(x, y)]
+        print(f'Flooding about point {(x, y)} in region {region_id}')
+        self._flood_table[(x, y)] = region_id
+        while not q.empty():
+            next_x, next_y = q.get()
+            neis = self.neighbors(next_x, next_y, True, True)
+            for nei in neis:
+                if self._flood_table.get(nei) is not None:
+                    continue
+                else:
+                    self._flood_table[nei] = region_id
+                    result.append(nei)
+                    q.put(nei)
+        return result
+
+    def set_regions(self):
+        self.regions = {}
+        self._flood_table = {}
+        region_id = 0
+        for x, y in self.floors:
+            if self._flood_table.get((x, y)) is None:
+                print(f'Getting region {region_id} in {self.name}')
+                self.regions[region_id] = self.flood(x, y, region_id)
+                region_id += 1
+
+    def close_small_regions(self, min_region_size):
+        print(
+            f'Removing regions smaller than {min_region_size} tiles from {self.name}'
+        )
+        for region in self.regions.values():
+            if len(region) < min_region_size:
+                for x, y in region:
+                    self.set_tile(x, y, 'wall')
+        self.set_regions()
+
+    def can_walk(self, x, y):
+        return self.move_cost[y, x] > 0
+
+    def can_see(self, x, y):
+        return self.transparent[y, x]

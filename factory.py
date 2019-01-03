@@ -2,7 +2,7 @@ import parsers
 import tcod
 from entity import Creature, Item, Equipment
 from gamemap import GameMap
-from random import choice, shuffle
+from random import choice, shuffle, randint
 
 
 def seed(entity, map_id, x=None, y=None):
@@ -112,5 +112,28 @@ def caves(m_id, name, width, height, wall_color, floor_color, light=True):
         else:
             print(f'Error connecting regions in {base_map.name}: no path')
             exit(1)
+
+    return base_map
+
+
+def rooms(m_id, name, width, height, wall_color, floor_color, light=True):
+    base_map = GameMap(width, height, m_id, name, wall_color, floor_color,
+                       light)
+    bsp = tcod.bsp.BSP(0, 0, width, height)
+    bsp.split_recursive(6, 5, 5, 1.5, 1.5)
+    for node in bsp.inverted_level_order():
+        if not node.children:
+            x_min = max(node.x + 1, 1)
+            x_max = min(node.x + node.width - 2, width - 2)
+            y_min = max(node.y + 1, 1)
+            y_max = min(node.y + node.height - 2, height - 2)
+            rx = randint(x_min, x_max)
+            ry = randint(y_min, y_max)
+            
+            rw = randint(3, width - x_max)
+            rh = randint(3, min(node.height - 2, h_max))
+            for x, y in [(i, j) for i in range(rx, rx + rw)
+                         for j in range(ry, ry + rh)]:
+                base_map.set_tile(x, y, 'floor')
 
     return base_map

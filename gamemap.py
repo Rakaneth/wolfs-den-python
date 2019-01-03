@@ -24,6 +24,7 @@ STAIRS_DOWN = Tile(ord('>'), tcod.light_sepia)
 STAIRS_OUT = Tile(ord('<'), tcod.light_green)
 WATER_SHALLOW = Tile(ord('~'), tcod.white, tcod.cyan, True, 5)
 WATER_DEEP = Tile(ord('~'), tcod.white, tcod.blue, True, 0)
+MARK = Tile(ord('X'), tcod.orange, tcod.black, True)
 NULL_TILE = Tile(0, None, None, False, 0)
 
 
@@ -37,7 +38,7 @@ class MapConnection:
 class GameMap(tcod.map.Map):
     TILES = [
         NULL_TILE, WALL, FLOOR, DOOR_CLOSED, DOOR_OPEN, STAIRS_UP, STAIRS_DOWN,
-        STAIRS_OUT, WATER_SHALLOW, WATER_DEEP
+        STAIRS_OUT, WATER_SHALLOW, WATER_DEEP, MARK
     ]
     TILE_ID = {
         'null': 0,
@@ -50,6 +51,7 @@ class GameMap(tcod.map.Map):
         'stairs_out': 7,
         'water_shallow': 8,
         'water_deep': 9,
+        'mark': 10
     }
 
     def __init__(self,
@@ -104,10 +106,11 @@ class GameMap(tcod.map.Map):
         if can_walk:
             self.carve_cost[y, x] = 10
             self.floors.add(pt)
-        elif pt in self.floors:
+        else:
             if tile_name == 'wall' and not self.on_edge(x, y):
                 self.carve_cost[y, x] = 1
-            self.floors.remove(pt)
+            if pt in self.floors:
+                self.floors.remove(pt)
 
         if self.on_edge(x, y):
             self.carve_cost[y, x] = 0
@@ -254,3 +257,79 @@ class GameMap(tcod.map.Map):
 
     def can_see(self, x, y):
         return self.transparent[y, x]
+
+    def carve_v(self, at_x, y1, y2, tile='floor', stop_condition=None):
+        y_start = min(y1, y2)
+        y_end = max(y1, y2)
+        for y in range(y_start, y_end + 1):
+            if stop_condition and stop_condition(at_x, y):
+                break
+            else:
+                self.set_tile(at_x, y, tile)
+
+    def carve_h(self, at_y, x1, x2, tile='floor', stop_condition=None):
+        x_start = min(x1, x2)
+        x_end = max(x1, x2)
+        for x in range(x_start, x_end + 1):
+            if stop_condition and stop_condition(x, at_y):
+                break
+            else:
+                self.set_tile(x, at_y, tile)
+
+    def carve_to(self, x1, y1, x2, y2, tile='floor', stop_condition=None):
+        if random.random() < 0.5:
+            self.carve_v(x1, y1, y2, tile, stop_condition)
+            self.carve_h(y2, x1, x2, tile, stop_condition)
+        else:
+            self.carve_h(y1, x1, x2, tile, stop_condition)
+            self.carve_v(x2, y1, y2, tile, stop_condition)
+
+    def carve_room(self, room, tile='floor'):
+        for x, y in room.interior:
+            self.set_tile(x, y, tile)
+
+    def connect_regions(self):
+        path = tcod.path.AStar(self.carve_cost, 0)
+
+        regions_copy = list(self.regions.values())
+        random.shuffle(regions_copy)
+        reg_from = regions_copy.pop()
+        while regions_copy:
+            reg_to = regions_copy.pop()
+            ax, ay = random.choice(reg_from)
+            bx, by = random.choice(reg_to)
+            p = path.get_path(ax, ay, bx, by)
+            if p:
+                for x, y in p:
+                    if self.can_walk(x, y) and not (x, y) in reg_from:
+                        break
+                    else:
+                        self.set_tile(x, y, 'floor')
+                reg_from = reg_to
+            else:
+                print(f'Error connecting regions in {self.name}: no path')
+                exit(1)
+
+    def is_wall(self, x, y):
+        t = self.get_tile(x, y)
+        return t.glyph and not self.can_walk(x, y) and not self.can_see(x, y)
+
+    def door_can_place(self, x, y):
+        ha, hb = x - 1, x + 1
+        va, vb = y - 1, y + 1
+        horz_wall = self.is_wall(ha, y) and self.is_wall(hb, y)
+        vert_wall = self.is_wall(x, va) and self.is_wall(x, vb)
+        return horz_wall or vert_wall
+
+    def place_doors(self):
+        to_door = []
+        for f in self.floors:
+            x, y = f
+            has_spt = self.door_can_place(x, y)
+            no_region = not self.regions.get(f)
+            gen_xp = (self._flood_table.get(pt) for pt in self.neighbors(x, y))
+            near_regional = any(gen_xp)
+            if has_spt and no_region and near_regional:
+                to_door.append(f)
+        for dx, dy in to_door:
+            self.set_tile(dx, dy, 'door_closed')

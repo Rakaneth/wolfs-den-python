@@ -3,6 +3,7 @@ import tcod
 from entity import Creature, Item, Equipment
 from gamemap import GameMap
 from random import choice, shuffle, randint
+from room import Room
 
 
 def seed(entity, map_id, x=None, y=None):
@@ -93,47 +94,58 @@ def caves(m_id, name, width, height, wall_color, floor_color, light=True):
     base_map.wall_wrap()
     base_map.set_regions()
     base_map.close_small_regions(20)
-    path = tcod.path.AStar(base_map.carve_cost, 0)
-    regions_copy = list(base_map.regions.values())
-    shuffle(regions_copy)
-    reg_from = regions_copy.pop()
-    while regions_copy:
-        reg_to = regions_copy.pop()
-        ax, ay = choice(reg_from)
-        bx, by = choice(reg_to)
-        p = path.get_path(ax, ay, bx, by)
-        if p:
-            for x, y in p:
-                if base_map.can_walk(x, y) and not (x, y) in reg_from:
-                    break
-                else:
-                    base_map.set_tile(x, y, 'floor')
-            reg_from = reg_to
-        else:
-            print(f'Error connecting regions in {base_map.name}: no path')
-            exit(1)
-
+    base_map.connect_regions()
     return base_map
 
 
 def rooms(m_id, name, width, height, wall_color, floor_color, light=True):
     base_map = GameMap(width, height, m_id, name, wall_color, floor_color,
                        light)
-    bsp = tcod.bsp.BSP(0, 0, width, height)
-    bsp.split_recursive(6, 5, 5, 1.5, 1.5)
-    for node in bsp.inverted_level_order():
-        if not node.children:
-            x_min = max(node.x + 1, 1)
-            x_max = min(node.x + node.width - 2, width - 2)
-            y_min = max(node.y + 1, 1)
-            y_max = min(node.y + node.height - 2, height - 2)
-            rx = randint(x_min, x_max)
-            ry = randint(y_min, y_max)
-            
-            rw = randint(3, width - x_max)
-            rh = randint(3, min(node.height - 2, h_max))
-            for x, y in [(i, j) for i in range(rx, rx + rw)
-                         for j in range(ry, ry + rh)]:
-                base_map.set_tile(x, y, 'floor')
+    base_map.all_tile('wall')
+    MAX_ROOMS = 50
+    MIN_ROOM_SIZE = 5
+    MAX_ROOM_SIZE = 10
+    room_list = []
 
+    for _ in range(MAX_ROOMS):
+        valid = True
+        x = randint(1, width - MIN_ROOM_SIZE)
+        y = randint(1, height - MIN_ROOM_SIZE)
+        w = randint(MIN_ROOM_SIZE, MAX_ROOM_SIZE)
+        h = randint(MIN_ROOM_SIZE, MAX_ROOM_SIZE)
+        room_cand = Room(x, y, w, h)
+
+        if room_list:
+            for room in room_list:
+                too_big = room_cand.x2 >= width or room_cand.y2 >= height
+                if room_cand.intersect(room) or too_big:
+                    valid = False
+                    break
+
+        if valid:
+            room_list.append(room_cand)
+            base_map.carve_room(room_cand)
+
+    shuffle(room_list)
+    room_from = room_list.pop()
+    path = tcod.path.AStar(base_map.move_cost, 0)
+    base_map.set_regions()
+
+    while room_list:
+        #TODO: Place items/monsters
+        room_to = room_list.pop()
+        fx, fy = room_from.center
+        tx, ty = room_to.center
+
+        def check_path(x, y):
+            return path.get_path(x, y, tx, ty)
+
+        base_map.carve_to(fx, fy, tx, ty, 'floor', check_path)
+        base_map.set_tile(fx, fy, 'mark')
+        base_map.set_tile(tx, ty, 'mark')
+        room_from = room_to
+
+    base_map.place_doors()
+
+    base_map.wall_wrap()
     return base_map

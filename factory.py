@@ -1,9 +1,9 @@
 import parsers
 import tcod
+import room
 from entity import Creature, Item, Equipment
 from gamemap import GameMap
-from random import choice, shuffle, randint
-from room import Room
+from random import choice, shuffle, randint, choices
 
 
 def seed(entity, map_id, x=None, y=None):
@@ -113,7 +113,7 @@ def rooms(m_id, name, width, height, wall_color, floor_color, light=True):
         y = randint(1, height - MIN_ROOM_SIZE)
         w = randint(MIN_ROOM_SIZE, MAX_ROOM_SIZE)
         h = randint(MIN_ROOM_SIZE, MAX_ROOM_SIZE)
-        room_cand = Room(x, y, w, h)
+        room_cand = room.Room(x, y, w, h)
 
         if room_list:
             for room in room_list:
@@ -149,3 +149,60 @@ def rooms(m_id, name, width, height, wall_color, floor_color, light=True):
 
     base_map.wall_wrap()
     return base_map
+
+
+def digger(m_id, name, width, height, wall_color, floor_color, light=True):
+    base_map = GameMap(width, height, m_id, name, wall_color, floor_color,
+                       light)
+    base_map.all_tile('wall')
+
+    MAX_FEATURES = 100
+    MIN_FEATURE_DIM = 5
+    MAX_FEATURE_DIM = 10
+    feature_list = []
+
+    for _ in range(MAX_FEATURES):
+        if feature_list:
+            #get a random feature to connect to
+            cur_feature = choice(feature_list)
+
+            if type(cur_feature) is room.BaseFeature:
+                selection = 'corr'
+            elif type(cur_feature) is room.BaseCorridor:
+                selection = 'room' if randint(0, 1) else 'corr'
+
+            #get a random connect point on said feature
+            conn_x, conn_y = choice(cur_feature.connection_points)
+
+            #get a start point based on connection orientation
+            conn = (conn_x, conn_y)
+            if conn in cur_feature.east:
+                start_x, start_y = conn_x + 1, conn_y
+            elif conn in cur_feature.west:
+                start_x, start_y = conn_x - 1, conn_y
+            elif conn in cur_feature.north:
+                start_x, start_y = conn_x, conn_y - 1
+            elif conn in cur_feature.south:
+                start_x, start_y = conn_x, conn_y + 1
+
+            #make the feature candidate
+
+            if select == 'corr':
+                pass
+
+            #make sure feature doesn't overlap or go out of bounds
+
+            #determine where the connect point is on the feature
+            #choose appropriate feature based on orientation
+        else:
+            #first feature is a room
+            x_min = 1
+            x_max = width - MAX_FEATURE_DIM
+            y_min = 1
+            y_max = height - MAX_FEATURE_DIM
+            x = randint(x_min, x_max)
+            y = randint(y_min, y_max)
+            w = randint(MIN_FEATURE_DIM, MAX_FEATURE_DIM)
+            h = randint(MIN_FEATURE_DIM, MAX_FEATURE_DIM)
+            room_cand = room.BaseFeature(x, y, w, h)
+            room_cand.carve(base_map)

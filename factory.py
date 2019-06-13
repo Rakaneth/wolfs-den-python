@@ -116,9 +116,9 @@ def rooms(m_id, name, width, height, wall_color, floor_color, light=True):
         room_cand = room.Room(x, y, w, h)
 
         if room_list:
-            for room in room_list:
+            for r in room_list:
                 too_big = room_cand.x2 >= width or room_cand.y2 >= height
-                if room_cand.intersect(room) or too_big:
+                if room_cand.intersect(r) or too_big:
                     valid = False
                     break
 
@@ -187,7 +187,7 @@ def digger(m_id, name, width, height, wall_color, floor_color, light=True):
 
             #make the feature candidate
 
-            if select == 'corr':
+            if selection == 'corr':
                 pass
 
             #make sure feature doesn't overlap or go out of bounds
@@ -206,3 +206,4 @@ def digger(m_id, name, width, height, wall_color, floor_color, light=True):
             h = randint(MIN_FEATURE_DIM, MAX_FEATURE_DIM)
             room_cand = room.BaseFeature(x, y, w, h)
             room_cand.carve(base_map)
+            feature_list.append(room_cand)
